@@ -13,8 +13,10 @@ The expected solution involves an intuitive user interface that enables easy upl
 
 
 # Prerequisites
-## Python: ## Ensure Python (3.6+) is installed. You can download it from here.
-## pip: ## Python's package installer (comes bundled with Python).
+## Python: 
+Ensure Python (3.6+) is installed.
+## pip:
+Python's package installer (comes bundled with Python).
 
 
 # Step-by-Step Instructions
