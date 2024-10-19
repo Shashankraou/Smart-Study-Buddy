@@ -12,17 +12,17 @@ import google.generativeai as genai
 import re  # Import the re module for regular expressions
 
 # Flask app configuration
-app = Flask(__name__)
+app = Flask(_name_)
 CORS(app)  # Enable CORS for all routes
 
-app.config['UPLOAD_FOLDER'] = 'uploads'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+app.config['UPLOAD_FOLDER'] = 'uploads'  # Configure the upload directory
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Create the upload directory if it doesn't exist
 
-ocr_reader = easyocr.Reader(['en'])  # Initialize EasyOCR
+ocr_reader = easyocr.Reader(['en'])  # Initialize EasyOCR for English language
 
 # Ensure the API key is stored in an environment variable
 os.environ["GOOGLE_API_KEY"] = "AIzaSyCHhYF4oQjodg7ypr3b6kmuHkHd96-5QMc"  # Replace with your key
-API_KEY = os.getenv("GOOGLE_API_KEY")
+API_KEY = os.getenv("GOOGLE_API_KEY")  # Get the API key from the environment variable
 generation_config = {
     "temperature": 1,
     "top_p": 0.95,
@@ -51,7 +51,7 @@ def extract_text_from_pdf(file_path):
         with open(file_path, 'rb') as file:
             reader = PyPDF2.PdfReader(file)
             text = ''.join([page.extract_text() for page in reader.pages if page.extract_text()])
-            sentences = re.split(r'(?<=[.!?])\s+', text)
+            sentences = re.split(r'(?<=[.!?])\s+', text)  # Split text into sentences using regular expressions
             formatted_text = '<br>'.join([sentence.strip() for sentence in sentences if sentence.strip()])
         return structure_text(text)
     except Exception as e:
@@ -71,7 +71,7 @@ def extract_text_from_audio(file_path):
 def extract_text_from_image(file_path):
     """Extract text from images and format it into structured content."""
     try:
-        results = ocr_reader.readtext(file_path)
+        results = ocr_reader.readtext(file_path)  # Use EasyOCR to read text from image
         text = ' '.join([result[1] for result in results])
         return structure_text(text)
     except Exception as e:
@@ -81,21 +81,21 @@ def extract_keywords_from_text(text):
     """Extract keywords using the Gemini API."""
     try:
         # Start a chat session and send the input text
-        chat_session = model.start_chat(history=[])
-        response = chat_session.send_message(f"Extract key terms from the following text:\n{text}")
+        chat_session = model.start_chat(history=[])  # Start a new Gemini chat session
+        response = chat_session.send_message(f"Extract key terms from the following text:\n{text}")  # Send text to Gemini for processing
 
         # Split the response by lines to extract keywords
-        keywords = response.text.split('\n\n')
-        pattern = r"(?m)^\*\*\s*([\w\s]+)\s*\*\*:"  # Matches "**Heading:**" format
+        keywords = response.text.split('\n\n')  # Extract keywords from Gemini response
+        pattern = r"(?m)^\\\s*([\w\s]+)\s*\\:"  # Matches "Heading:" format  # Regex to find potential side headings
         side_headings = [match.strip() for match in re.findall(pattern, text)]
 
         # Select only the first 10 keywords
-        main_keywords = [keyword.strip() for keyword in keywords[:10] if keyword.strip()]
+        main_keywords = [keyword.strip() for keyword in keywords[:10] if keyword.strip()]  # Select first 10 keywords
 
         return side_headings if side_headings else ["No headings found."], main_keywords if main_keywords else ["No keywords found."]
     
     except requests.exceptions.RequestException as e:
-        print(f"API Error: {e}")
+        print(f"API Error: {e}")  # Print the API error
         return ["Error with Gemini API"], []
     
     except Exception as e:
@@ -115,32 +115,32 @@ def generate_knowledge_graph(keywords):
 
     # Add keywords as children of the root node
     for keyword in keywords:
-        limited_keyword = limit_to_two_words(keyword)
-        G.add_node(limited_keyword)
-        G.add_edge(root_node, limited_keyword)  # Connect each keyword to the root node
+        limited_keyword = limit_to_two_words(keyword)  # Limit keyword to two words
+        G.add_node(limited_keyword)  # Add limited keyword to graph
+        G.add_edge(root_node, limited_keyword)  # Connect limited keyword to the root node
 
     pos = nx.spring_layout(G)  # Layout for a better visual representation
     plt.figure(figsize=(8, 6))
-    nx.draw(G, pos, with_labels=True, node_size=2000, node_color='skyblue', font_size=10, arrows=True)
+    nx.draw(G, pos, with_labels=True, node_size=2000, node_color='skyblue', font_size=10, arrows=True)  # Draw graph using Matplotlib
 
-    graph_path = os.path.join(app.config['UPLOAD_FOLDER'], 'knowledge_graph.png')
+    graph_path = os.path.join(app.config['UPLOAD_FOLDER'], 'knowledge_graph.png')  # Path to save the knowledge graph image
     plt.savefig(graph_path)
     plt.close()
-    return 'knowledge_graph.png'
+    return 'knowledge_graph.png'  # Return the name of the saved knowledge graph file
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     """Serve uploaded files."""
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)  # Serve uploaded files from the uploads folder
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         try:
-            file = request.files['file']
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
+            file = request.files['file']  # Get the uploaded file
+            filename = secure_filename(file.filename)  # Secure the filename for safe saving
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)  # Construct the file path
+            file.save(file_path)  # Save the uploaded file
 
             # Determine file type and extract text
             if filename.endswith('.pdf'):
@@ -154,7 +154,7 @@ def upload_file():
 
             # Extract keywords and generate knowledge graph
             side_headings, keywords = extract_keywords_from_text(' '.join(extracted_text))  # Join structured text for keywords
-            graph_image = generate_knowledge_graph(keywords) if keywords else None
+            graph_image = generate_knowledge_graph(keywords) if keywords else None  # Generate knowledge graph if keywords are found
 
             return jsonify({
                 'extracted_text': extracted_text,  # Will be a list of bullet points now
@@ -164,9 +164,9 @@ def upload_file():
             })
 
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            return jsonify({"error": str(e)}), 500  # Return error message as JSON response
 
-    return render_template('upload.html')
+    return render_template('upload.html')  # Render the upload template for GET requests
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if _name_ == '_main_':
+    app.run(debug=True)  # Run the Flask application in debug mode
