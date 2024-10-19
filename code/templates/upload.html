@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Study Buddy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS styles for the web application */
+        :root {
+            /* Define color variables for easier customization */
+            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
+            --background-gradient: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            --card-background: #ffffff;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+        }
+        body {
+            /* Basic body styling */
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-gradient);
+            color: var(--text-color);
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            /* Container for content with fixed width and margin */
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            flex-grow: 1;
+        }
+        h1 {
+            /* Custom styling for the main heading */
+            font-family: 'Tangerine', cursive;
+            text-align: center;
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        h2 {
+            /* Styling for subheadings */
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        .navbar {
+            /* Navigation bar styling */
+            background: var(--primary-gradient);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            /* Branding link within the navigation bar */
+            font-family: 'Tangerine', cursive;
+            font-size: 2.5rem;
+            color: white;
+            text-decoration: none;
+        }
+        .navbar-menu {
+            /* Navigation menu styling */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu a {
+            /* Links within the navigation menu */
+            color: white;
+            text-decoration: none;
+            margin-left: 1rem;
+            transition: opacity 0.3s ease;
+        }
+        .navbar-menu a:hover {
+            /* Hover effect for navigation links */
+            opacity: 0.8;
+        }
+        .card {
+            /* Generic card styling for content containers */
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            /* Hover effect for cards */
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .card-header {
+            /* Styling for the card header section */
+            background: var(--primary-gradient);
+            color: white;
+            padding: 15px 20px;
+        }
+        .card-content {
+            /* Styling for the card content section */
+            padding: 20px;
+        }
+        .info-cards {
+            /* Styling for cards displaying informational content */
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        .info-card {
+            /* Styling for individual informational cards */
+            flex-basis: calc(50% - 10px);
+        }
+        .drag-drop-area {
+            /* Styling for the drag and drop file upload area */
+            border: 2px dashed #3b82f6;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        .drag-drop-area:hover, .drag-drop-area.hover {
+            /* Hover effect for the drag and drop area */
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        .drag-drop-area p {
+            /* Text styling within the drag and drop area */
+            margin: 0;
+            color: var(--text-muted);
+        }
+        .loading, .hidden {
+            /* Hidden or loading states styling */
+            display: none;
+        }
+        .loading {
+            /* Loading state styling */
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            /* Spinner animation for loading state */
+            border: 4px solid rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            /* Keyframes for the spinner animation */
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #keywords-list {
+            /* Styling for the list of extracted keywords */
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        #knowledge-graph {
+            /* Styling for the knowledge graph image */
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .fade-in {
+            /* Fade-in animation for elements */
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            /* Keyframes for the fade-in animation */
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .footer {
+            /* Styling for the footer */
+            background: var(--primary-gradient);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        .footer p {
+            /* Text styling within the footer */
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-menu">
+            <a href="#" class="navbar-brand">Smart Study Buddy</a>
+            <div>
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Smart Study Buddy</h1>
+        
+        <div class="info-cards">
+            <div class="card info-card fade-in">
+                <div class="card-header">
+                    <h2>Text Extraction</h2>
+                </div>
+                <div class="card-content">
+                    <p>Upload your study materials and we'll extract the key information using advanced AI algorithms.</p>
+                </div>
+            </div>
+            <div class="card info-card fade-in">
+                <div class="card-header">
+                    <h2>Knowledge Graph</h2>
+                </div>
+                <div class="card-content">
+                    <p>Visualize connections between concepts with our AI-generated knowledge graphs for better understanding.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card fade-in">
+            <div class="card-header">
+                <h2>Upload Your Study Material</h2>
+            </div>
+            <div class="card-content">
+                <div class="drag-drop-area" id="drop-zone">
+                    <p>Drag & Drop or Click to Upload a File</p>
+                </div>
+                <input type="file" id="file-input" hidden>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Processing your file... Please wait.</p>
+        </div>
+
+        <div id="results" class="hidden">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h2>Extracted Text</h2>
+                </div>
+                <div class="card-content">
+                    <div id="extracted-text"></div>
+                </div>
+            </div>
+
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h2>Keywords</h2>
+                </div>
+                <div class="card-content">
+                    <ul id="keywords-list"></ul>
+                </div>
+            </div>
+
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h2>Knowledge Graph</h2>
+                </div>
+                <div class="card-content">
+                    <img id="knowledge-graph" src="" alt="Knowledge Graph">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2024 Smart Study Buddy. All rights reserved.</p>
+        <p>Licensed under the MIT License.</p>
+    </footer>
+
+    <script>
+        // Get references to HTML elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const results = document.getElementById('results');
+        const loading = document.getElementById('loading');
+        const extractedText = document.getElementById('extracted-text');
+        const keywordsList = document.getElementById('keywords-list');
+        const knowledgeGraph = document.getElementById('knowledge-graph');
+
+        // Event listener for clicking the drop zone
+        dropZone.onclick = () => fileInput.click();
+
+        // Event listeners for drag and drop functionality
+        dropZone.ondragover = event => {
+            event.preventDefault(); // Prevent default browser behavior
+            dropZone.classList.add('hover'); // Add hover class for visual feedback
+        };
+        dropZone.ondragleave = () => dropZone.classList.remove('hover'); // Remove hover class when mouse leaves
+        dropZone.ondrop = event => {
+            event.preventDefault(); // Prevent default browser behavior
+            dropZone.classList.remove('hover'); // Remove hover class
+            fileInput.files = event.dataTransfer.files; // Assign dropped files
+            handleFileUpload(); // Call file upload handler
+        };
+
+        // Event listener for file input change
+        fileInput.onchange = handleFileUpload;
+
+        // Function to handle file upload process
+        function handleFileUpload() {
+            const file = fileInput.files[0];
+            if (!file) return; // If no file is selected, do nothing
+
+            // Show loading indicator and hide results
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            // Create a form data object to send file data
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Send a POST request to the server
+            fetch('/', { method: 'POST', body: formData })
+                .then(response => response.json()) // Parse the response as JSON
+                .then(data => {
+                    // Hide loading indicator
+                    loading.classList.add('hidden');
+                    if (data.error) {
+                        // Display error message if present
+                        alert(Error: ${data.error});
+                        return;
+                    }
+                    // Display results from the server response
+                    displayResults(data);
+                })
+                .catch(err => {
+                    // Handle any network or server errors
+                    console.error(err);
+                    loading.classList.add('hidden');
+                    alert('An error occurred while processing your file. Please try again.');
+                });
+        }
+
+        // Function to display the processed results on the page
+        function displayResults(data) {
+            // Update extracted text display
+            extractedText.textContent = data.extracted_text || 'No text extracted.';
+            // Update keywords list display
+            keywordsList.innerHTML = data.keywords.map(k => <li>${k}</li>).join('');
+            // Update knowledge graph image
+            knowledgeGraph.src = data.knowledge_graph ? /uploads/${data.knowledge_graph} : '';
+            knowledgeGraph.alt = data.knowledge_graph ? 'Knowledge Graph' : 'No knowledge graph available';
+            // Show the results container
+            results.classList.remove('hidden');
+
+            // Trigger reflow to restart animation
+            results.offsetHeight;
+            // Add fade-in animation to each card in the results
+            results.querySelectorAll('.card').forEach(card => {
+                card.classList.add('fade-in');
+            });
+        }
+    </script>
+</body>
+</html>
