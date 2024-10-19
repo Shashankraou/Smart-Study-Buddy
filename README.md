@@ -1,6 +1,9 @@
-## St.Joseph Engineering College - Scripto
+## St.Joseph Engineering College - Phoenix
+
 Glen Elric Fernandes
+
 Shashank Rao U
+
 Sherol Chrissel Dsouza
 
 ## 3.1 Problem Statement: Knowledge Distiller App
