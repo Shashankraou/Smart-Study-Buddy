@@ -21,7 +21,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Create the upload dir
 ocr_reader = easyocr.Reader(['en'])  # Initialize EasyOCR for English language
 
 # Ensure the API key is stored in an environment variable
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCHhYF4oQjodg7ypr3b6kmuHkHd96-5QMc"  # Replace with your key
+os.environ["GOOGLE_API_KEY"] = "#google-api-key"  # Replace with your key
 API_KEY = os.getenv("GOOGLE_API_KEY")  # Get the API key from the environment variable
 generation_config = {
     "temperature": 1,
